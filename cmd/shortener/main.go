@@ -47,7 +47,7 @@ func BodyHandler(w http.ResponseWriter, r *http.Request) {
 
 		key, ok := mapkey(urls, string(b))
 
-		var newlyGeneratedKey, shortcutUrl string
+		var newlyGeneratedKey, shortcutURL string
 		if !ok {
 			newlyGeneratedKey = generateString()
 			urls[newlyGeneratedKey] = string(b)
@@ -57,12 +57,12 @@ func BodyHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(201)
 
 		if ok {
-			shortcutUrl = "http://localhost:8080/" + key
+			shortcutURL = "http://localhost:8080/" + key
 		} else {
-			shortcutUrl = "http://localhost:8080/" + newlyGeneratedKey
+			shortcutURL = "http://localhost:8080/" + newlyGeneratedKey
 		}
 
-		w.Write([]byte(shortcutUrl))
+		w.Write([]byte(shortcutURL))
 	case "GET":
 		q := r.URL.Path
 		q = strings.TrimLeft(q, "/")
