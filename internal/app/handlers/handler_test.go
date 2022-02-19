@@ -19,10 +19,10 @@ func TestShortenHandler(t *testing.T) {
 		code        int
 		response    string
 		contentType string
+		url         string
 		method      string
 	}
-
-	tests := []struct {
+tests := []struct {
 		name string
 		want want
 	}{
@@ -32,6 +32,7 @@ func TestShortenHandler(t *testing.T) {
 				code:        201,
 				response:    "http://localhost:8080",
 				contentType: "text/plain; charset=utf-8",
+				url:         "https://yourbasic.org/golang/io-reader-interface-explained/",
 				method:      http.MethodPost,
 			},
 		},
@@ -39,8 +40,8 @@ func TestShortenHandler(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			link := strings.NewReader("https://yourbasic.org/golang/io-reader-interface-explained/")
-			request := httptest.NewRequest(tt.want.method, "/", link)
+			link := strings.NewReader(tt.want.url)
+			request := httptest.NewRequest(tt.want.method, "/api/v1/shortener", link)
 
 			w := httptest.NewRecorder()
 			h := http.HandlerFunc(ShortenHandler)
@@ -59,5 +60,4 @@ func TestShortenHandler(t *testing.T) {
 			assert.Contains(t, string(resBody), tt.want.response)
 		})
 	}
-
 }
