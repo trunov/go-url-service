@@ -6,9 +6,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/trunov/go-url-service/internal/app"
+	"github.com/trunov/go-url-service/internal/app/storage"
 )
 
 var urls = make(map[string]string, 10)
+var s = storage.NewStorage(urls)
+
 
 func mapkey(m map[string]string, value string) (key string, ok bool) {
 	for k, v := range m {
@@ -29,12 +32,13 @@ func ShortenHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	key, ok := mapkey(urls, string(b))
+	key, ok := mapkey(s.GetAll(), string(b))
 
 	var newlyGeneratedShortLink, tinyURL string
 	if !ok {
 		newlyGeneratedShortLink = app.GenerateShortLink()
-		urls[newlyGeneratedShortLink] = string(b)
+		s.Add(newlyGeneratedShortLink, string(b))
+		// urls[newlyGeneratedShortLink] = string(b)
 	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -56,7 +60,7 @@ func RedirectHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := urls[id]
+	url, _ := s.Get(id)
 	if url == "" {
 		http.Error(rw, "provided id was not found", http.StatusNotFound)
 		return
