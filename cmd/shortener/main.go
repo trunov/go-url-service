@@ -12,10 +12,8 @@ import (
 func main() {
 	r := chi.NewRouter()
 
-	r.Route("/api/v1/shortener", func(r chi.Router) {
-		r.Post("/", handlers.ShortenHandler)
-		r.Get("/{id}", handlers.RedirectHandler)
-	})
+	r.Post("/", handlers.ShortenHandler)
+	r.Get("/{id}", handlers.RedirectHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }

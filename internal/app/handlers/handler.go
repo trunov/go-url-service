@@ -54,7 +54,7 @@ func RedirectHandler(rw http.ResponseWriter, r *http.Request) {
 	if id == "" {
 		http.Error(rw, "id param is missing", http.StatusBadRequest)
 		return
-	} 
+	}
 
 	url := urls[id]
 	if url == "" {
