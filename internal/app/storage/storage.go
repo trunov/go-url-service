@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 )
+
 type urls map[string]string
 
 type Storage struct {
@@ -17,11 +18,11 @@ func NewStorage(urls urls) *Storage {
 
 // как использовать этот интерфейс в дальнейшем ?
 // на данном этапе storage используется в хендлерах с иницилизацией контруктора NewStorage
-// 
+//
 type Storager interface {
 	Get(id string) (string, error)
 	Add(id, url string)
-	GetAll() (urls)
+	GetAll() urls
 }
 
 func (s *Storage) Get(id string) (string, error) {
@@ -37,6 +38,6 @@ func (s *Storage) Add(id, url string) {
 	s.urls[id] = url
 }
 
-func (s *Storage) GetAll() (urls) {
+func (s *Storage) GetAll() urls {
 	return s.urls
 }

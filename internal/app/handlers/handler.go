@@ -9,9 +9,17 @@ import (
 	"github.com/trunov/go-url-service/internal/app/storage"
 )
 
-var urls = make(map[string]string, 10)
-var s = storage.NewStorage(urls)
+const localhost string = "http://localhost:8080/"
 
+type Handlers struct {
+	storage storage.Storager
+}
+
+func NewHandlers(storage storage.Storager) *Handlers {
+	return &Handlers{
+		storage: storage,
+	}
+}
 
 func mapkey(m map[string]string, value string) (key string, ok bool) {
 	for k, v := range m {
@@ -24,7 +32,7 @@ func mapkey(m map[string]string, value string) (key string, ok bool) {
 	return
 }
 
-func ShortenHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) ShortenHandler(w http.ResponseWriter, r *http.Request) {
 	b, err := io.ReadAll(r.Body)
 
 	if err != nil {
@@ -32,35 +40,34 @@ func ShortenHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	key, ok := mapkey(s.GetAll(), string(b))
+	key, ok := mapkey(h.storage.GetAll(), string(b))
 
 	var newlyGeneratedShortLink, tinyURL string
 	if !ok {
 		newlyGeneratedShortLink = app.GenerateShortLink()
-		s.Add(newlyGeneratedShortLink, string(b))
-		// urls[newlyGeneratedShortLink] = string(b)
+		h.storage.Add(newlyGeneratedShortLink, string(b))
 	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.WriteHeader(201)
 
 	if ok {
-		tinyURL = "http://localhost:8080/" + key
+		tinyURL = localhost + key
 	} else {
-		tinyURL = "http://localhost:8080/" + newlyGeneratedShortLink
+		tinyURL = localhost + newlyGeneratedShortLink
 	}
 
 	w.Write([]byte(tinyURL))
 }
 
-func RedirectHandler(rw http.ResponseWriter, r *http.Request) {
+func (h *Handlers) RedirectHandler(rw http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
 		http.Error(rw, "id param is missing", http.StatusBadRequest)
 		return
 	}
 
-	url, _ := s.Get(id)
+	url, _ := h.storage.Get(id)
 	if url == "" {
 		http.Error(rw, "provided id was not found", http.StatusNotFound)
 		return

@@ -10,6 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/trunov/go-url-service/internal/app/storage"
 )
 
 func TestShortenHandler(t *testing.T) {
@@ -43,8 +44,13 @@ func TestShortenHandler(t *testing.T) {
 			link := strings.NewReader(tt.want.url)
 			request := httptest.NewRequest(tt.want.method, "/", link)
 
+			// таким образом потом можно для гет запроса передать массив с данными и тестировать
+			urls := make(map[string]string, 10)
+			s := storage.NewStorage(urls)
+			handlers := NewHandlers(s)
+
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(ShortenHandler)
+			h := http.HandlerFunc(handlers.ShortenHandler)
 			h.ServeHTTP(w, request)
 			res := w.Result()
 
