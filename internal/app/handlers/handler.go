@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 
@@ -8,6 +9,10 @@ import (
 	"github.com/trunov/go-url-service/internal/app"
 	"github.com/trunov/go-url-service/internal/app/storage"
 )
+
+type Data struct {
+	Url string `json:"url"`
+}
 
 const localhost string = "http://localhost:8080/"
 
@@ -76,4 +81,34 @@ func (h *Handlers) RedirectHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Location", url)
 	rw.WriteHeader(http.StatusTemporaryRedirect)
 	rw.Write(nil)
+}
+
+func (h *Handlers) NewShortenHandler(rw http.ResponseWriter, r *http.Request) {
+	var b Data
+
+	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	key, ok := mapkey(h.storage.GetAll(), b.Url)
+
+	var newlyGeneratedShortLink, tinyURL string
+	if !ok {
+		newlyGeneratedShortLink = app.GenerateShortLink()
+		h.storage.Add(newlyGeneratedShortLink, b.Url)
+	}
+
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	rw.WriteHeader(201)
+
+	if ok {
+		tinyURL = localhost + key
+	} else {
+		tinyURL = localhost + newlyGeneratedShortLink
+	}
+
+	data := Data{Url: tinyURL}
+
+	json.NewEncoder(rw).Encode(data)
 }

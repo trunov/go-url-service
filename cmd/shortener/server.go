@@ -17,6 +17,7 @@ func StartServer() {
 
 	r := chi.NewRouter()
 	r.Post("/", h.ShortenHandler)
+	r.Post("/api/shorten", h.NewShortenHandler)
 	r.Get("/{id}", h.RedirectHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", r))
