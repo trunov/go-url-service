@@ -112,17 +112,15 @@ func TestNewShortenHandler(t *testing.T) {
 			assert.Equal(t, tt.want.code, res.StatusCode)
 			assert.Equal(t, tt.want.contentType, res.Header.Get("Content-Type"))
 
-			defer res.Body.Close()
-			resBody, err := io.ReadAll(res.Body)
-			require.NoError(t, err)
-
 			var data Data
-			jsonErr := json.Unmarshal(resBody, &data)
-			if jsonErr != nil {
+
+			err := json.NewDecoder(res.Body).Decode(&data)
+			if err != nil {
 				http.Error(w, err.Error(), 500)
 				return
 			}
 
+			require.NoError(t, err)
 			assert.Contains(t, data.Url, tt.want.response)
 		})
 	}
