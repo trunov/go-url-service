@@ -12,7 +12,7 @@ import (
 
 type Config struct {
 	ServerAddress string `env:"SERVER_ADDRESS" envDefault:":8080"`
-	BaseUrl string `env:"BASE_URL"`
+	BaseURL string `env:"BASE_URL"`
 }
 
 func StartServer() {
@@ -29,7 +29,7 @@ func StartServer() {
 
 	r := chi.NewRouter()
 	r.Post("/", h.ShortenHandler)
-	r.Post(cfg.BaseUrl, h.NewShortenHandler)
+	r.Post(cfg.BaseURL, h.NewShortenHandler)
 	r.Get("/{id}", h.RedirectHandler)
 
 	log.Fatal(http.ListenAndServe(cfg.ServerAddress, r))

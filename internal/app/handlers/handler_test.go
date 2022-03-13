@@ -120,6 +120,8 @@ func TestNewShortenHandler(t *testing.T) {
 				return
 			}
 
+			defer res.Body.Close()
+
 			require.NoError(t, err)
 			assert.Contains(t, result.Result, tt.want.response)
 		})
