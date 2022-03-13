@@ -14,6 +14,10 @@ type Data struct {
 	Url string `json:"url"`
 }
 
+type Body struct {
+	Url string `json:"url"`
+}
+
 const localhost string = "http://localhost:8080/"
 
 type Handlers struct {
@@ -84,7 +88,7 @@ func (h *Handlers) RedirectHandler(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handlers) NewShortenHandler(rw http.ResponseWriter, r *http.Request) {
-	var b Data
+	var b Body
 
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
