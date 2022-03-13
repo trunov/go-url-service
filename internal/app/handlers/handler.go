@@ -10,12 +10,12 @@ import (
 	"github.com/trunov/go-url-service/internal/app/storage"
 )
 
-type Data struct {
-	Url string `json:"url"`
+type Response struct {
+	Result string `json:"result"`
 }
 
 type Body struct {
-	Url string `json:"url"`
+	URL string `json:"url"`
 }
 
 const localhost string = "http://localhost:8080/"
@@ -95,12 +95,12 @@ func (h *Handlers) NewShortenHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	key, ok := mapkey(h.storage.GetAll(), b.Url)
+	key, ok := mapkey(h.storage.GetAll(), b.URL)
 
 	var newlyGeneratedShortLink, tinyURL string
 	if !ok {
 		newlyGeneratedShortLink = app.GenerateShortLink()
-		h.storage.Add(newlyGeneratedShortLink, b.Url)
+		h.storage.Add(newlyGeneratedShortLink, b.URL)
 	}
 
 	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -112,7 +112,7 @@ func (h *Handlers) NewShortenHandler(rw http.ResponseWriter, r *http.Request) {
 		tinyURL = localhost + newlyGeneratedShortLink
 	}
 
-	data := Data{Url: tinyURL}
+	data := Response{Result: tinyURL}
 
 	json.NewEncoder(rw).Encode(data)
 }
