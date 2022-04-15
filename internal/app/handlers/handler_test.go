@@ -112,7 +112,7 @@ func TestNewShortenHandler(t *testing.T) {
 			handlers := NewHandlers(s)
 
 			w := httptest.NewRecorder()
-			h := http.HandlerFunc(handlers.ShortenHandler)
+			h := http.HandlerFunc(handlers.NewShortenHandler)
 			h.ServeHTTP(w, request)
 			res := w.Result()
 
