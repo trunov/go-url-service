@@ -27,7 +27,7 @@ func StartServer() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf(cfg.BaseURL, cfg.ServerAddress)
+	fmt.Println(cfg.BaseURL, cfg.ServerAddress)
 
 	s := storage.NewStorage(urls)
 
