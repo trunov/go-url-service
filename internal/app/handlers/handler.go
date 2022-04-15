@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -40,6 +41,34 @@ func mapkey(m map[string]string, value string) (key string, ok bool) {
 	return
 }
 
+func (h *Handlers) ShortenHandler(w http.ResponseWriter, r *http.Request) {
+	b, err := io.ReadAll(r.Body)
+
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	key, ok := mapkey(h.storage.GetAll(), string(b))
+
+	var newlyGeneratedShortLink, tinyURL string
+	if !ok {
+		newlyGeneratedShortLink = app.GenerateShortLink()
+		h.storage.Add(newlyGeneratedShortLink, string(b))
+	}
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(201)
+
+	if ok {
+		tinyURL = localhost + key
+	} else {
+		tinyURL = localhost + newlyGeneratedShortLink
+	}
+
+	w.Write([]byte(tinyURL))
+}
+
 func (h *Handlers) RedirectHandler(rw http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
@@ -58,7 +87,7 @@ func (h *Handlers) RedirectHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.Write(nil)
 }
 
-func (h *Handlers) ShortenHandler(rw http.ResponseWriter, r *http.Request) {
+func (h *Handlers) NewShortenHandler(rw http.ResponseWriter, r *http.Request) {
 	var b Body
 
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
