@@ -105,7 +105,7 @@ func TestNewShortenHandler(t *testing.T) {
 			payloadBuf := new(bytes.Buffer)
 			json.NewEncoder(payloadBuf).Encode(body)
 
-			request := httptest.NewRequest(tt.want.method, "/shorten", payloadBuf)
+			request := httptest.NewRequest(tt.want.method, "/api/shorten", payloadBuf)
 
 			urls := make(map[string]string, 10)
 			s := storage.NewStorage(urls)
