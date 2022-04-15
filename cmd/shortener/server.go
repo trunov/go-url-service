@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -11,8 +12,8 @@ import (
 )
 
 type Config struct {
-	ServerAddress string `env:"SERVER_ADDRESS" envDefault:"127.0.0.1:8080"`
-	BaseURL       string `env:"BASE_URL" envDefault:"http://127.0.0.1:8090"`
+	ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
+	BaseURL       string `env:"BASE_URL" envDefault:"http://localhost:8090"`
 }
 
 // сделать конфиг фолдер и там инициализацию проводить ?!
@@ -25,6 +26,8 @@ func StartServer() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Printf(cfg.BaseURL, cfg.ServerAddress)
 
 	s := storage.NewStorage(urls)
 
