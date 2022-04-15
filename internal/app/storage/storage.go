@@ -16,9 +16,6 @@ func NewStorage(urls urls) *Storage {
 	}
 }
 
-// как использовать этот интерфейс в дальнейшем ?
-// на данном этапе storage используется в хендлерах с иницилизацией контруктора NewStorage
-//
 type Storager interface {
 	Get(id string) (string, error)
 	Add(id, url string)

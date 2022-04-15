@@ -20,13 +20,16 @@ type Body struct {
 
 const localhost string = "http://localhost:8080/"
 
+
 type Handlers struct {
 	storage storage.Storager
+	baseURL string
 }
 
-func NewHandlers(storage storage.Storager) *Handlers {
+func NewHandlers(storage storage.Storager, baseURL string) *Handlers {
 	return &Handlers{
 		storage: storage,
+		baseURL: baseURL,
 	}
 }
 
@@ -107,9 +110,9 @@ func (h *Handlers) NewShortenHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(201)
 
 	if ok {
-		tinyURL = localhost + key
+		tinyURL = h.baseURL + "/" + key
 	} else {
-		tinyURL = localhost + newlyGeneratedShortLink
+		tinyURL = h.baseURL + "/" + newlyGeneratedShortLink
 	}
 
 	data := Response{Result: tinyURL}

@@ -16,6 +16,8 @@ import (
 	"github.com/trunov/go-url-service/internal/app/storage"
 )
 
+const testURL string = "http://localhost:8080/"
+
 func TestShortenHandler(t *testing.T) {
 
 	// тест который проверяет пост запрос на генерацию ключа в ответе текстом и кодом 201 в последующем проверка того что ключ есть в массиве
@@ -50,7 +52,7 @@ func TestShortenHandler(t *testing.T) {
 			// таким образом потом можно для гет запроса передать массив с данными и тестировать
 			urls := make(map[string]string, 10)
 			s := storage.NewStorage(urls)
-			handlers := NewHandlers(s)
+			handlers := NewHandlers(s, testURL)
 
 			w := httptest.NewRecorder()
 			h := http.HandlerFunc(handlers.ShortenHandler)
@@ -109,7 +111,7 @@ func TestNewShortenHandler(t *testing.T) {
 
 			urls := make(map[string]string, 10)
 			s := storage.NewStorage(urls)
-			handlers := NewHandlers(s)
+			handlers := NewHandlers(s, testURL)
 
 			w := httptest.NewRecorder()
 			h := http.HandlerFunc(handlers.NewShortenHandler)
