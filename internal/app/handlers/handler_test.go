@@ -19,7 +19,6 @@ import (
 const testURL string = "http://localhost:8080/"
 
 func TestShortenHandler(t *testing.T) {
-
 	// тест который проверяет пост запрос на генерацию ключа в ответе текстом и кодом 201 в последующем проверка того что ключ есть в массиве
 	type want struct {
 		code        int
