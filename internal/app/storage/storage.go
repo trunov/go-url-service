@@ -40,20 +40,18 @@ func (s *Storage) Add(id, url string) {
 	s.urls[id] = url
 
 	producer, err := file.NewProducer(s.fileName)
-	if err != nil {
-		log.Fatal(err)
-	}
+	if err == nil {
+		link := &file.Link{
+			Id:  id,
+			URL: url,
+		}
 
-	defer producer.Close()
+		writeErr := producer.WriteLink(link)
+		if writeErr != nil {
+			log.Fatal(err)
+		}
 
-	link := &file.Link{
-		Id:  id,
-		URL: url,
-	}
-
-	writeErr := producer.WriteLink(link)
-	if writeErr != nil {
-		log.Fatal(err)
+		defer producer.Close()
 	}
 }
 

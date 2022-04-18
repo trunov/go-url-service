@@ -27,18 +27,17 @@ func StartServer() {
 	}
 
 	consumer, err := file.NewConsumer(cfg.FileStorage)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer consumer.Close()
+	if err == nil {
+		links, err := consumer.ReadLink()
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	links, err := consumer.ReadLink()
-	if err != nil {
-		log.Fatal(err)
-	}
+		for _, link := range links {
+			urls[link.Id] = link.URL
+		}
 
-	for _, link := range links {
-		urls[link.Id] = link.URL
+		defer consumer.Close()
 	}
 
 	s := storage.NewStorage(urls, cfg.FileStorage)

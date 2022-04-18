@@ -17,7 +17,7 @@ type producer struct {
 }
 
 func NewProducer(filename string) (*producer, error) {
-	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0777)
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND, 0777)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ type consumer struct {
 }
 
 func NewConsumer(filename string) (*consumer, error) {
-	file, err := os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0777)
+	file, err := os.OpenFile(filename, os.O_RDONLY, 0777)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (c *consumer) ReadLink() ([]Link, error) {
 		err := json.Unmarshal(c.scanner.Bytes(), &link)
 		if err != nil {
 			return nil, err
-		}	
+		}
 		linkList = append(linkList, link)
 	}
 
