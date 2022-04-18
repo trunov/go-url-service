@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/caarlos0/env/v6"
 	"github.com/go-chi/chi/v5"
+	"github.com/trunov/go-url-service/internal/app/file"
 	"github.com/trunov/go-url-service/internal/app/handlers"
 	"github.com/trunov/go-url-service/internal/app/storage"
 )
@@ -14,9 +14,8 @@ import (
 type Config struct {
 	ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
 	BaseURL       string `env:"BASE_URL" envDefault:"http://localhost:8080"`
+	FileStorage   string `env:"FILE_STORAGE"`
 }
-
-// сделать конфиг фолдер и там инициализацию проводить ?!
 
 func StartServer() {
 	urls := make(map[string]string, 10)
@@ -27,9 +26,22 @@ func StartServer() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(cfg.BaseURL, cfg.ServerAddress)
+	consumer, err := file.NewConsumer(cfg.FileStorage)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer consumer.Close()
 
-	s := storage.NewStorage(urls)
+	links, err := consumer.ReadLink()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, link := range links {
+		urls[link.Id] = link.URL
+	}
+
+	s := storage.NewStorage(urls, cfg.FileStorage)
 
 	h := handlers.NewHandlers(s, cfg.BaseURL)
 
