@@ -39,10 +39,14 @@ func (s *Storage) Get(id string) (string, error) {
 func (s *Storage) Add(id, url string) {
 	s.urls[id] = url
 
-	producer, err := file.NewProducer(s.fileName)
-	if err == nil {
+	if s.fileName != "" {
+		producer, err := file.NewProducer(s.fileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		link := &file.Link{
-			Id:  id,
+			ID:  id,
 			URL: url,
 		}
 
