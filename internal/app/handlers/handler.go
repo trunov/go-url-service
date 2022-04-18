@@ -20,7 +20,6 @@ type Body struct {
 
 const localhost string = "http://localhost:8080/"
 
-
 type Handlers struct {
 	storage storage.Storager
 	baseURL string

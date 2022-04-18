@@ -17,6 +17,7 @@ import (
 )
 
 const testURL string = "http://localhost:8080/"
+const fileName string = "test.txt"
 
 func TestShortenHandler(t *testing.T) {
 	// тест который проверяет пост запрос на генерацию ключа в ответе текстом и кодом 201 в последующем проверка того что ключ есть в массиве
@@ -50,7 +51,7 @@ func TestShortenHandler(t *testing.T) {
 
 			// таким образом потом можно для гет запроса передать массив с данными и тестировать
 			urls := make(map[string]string, 10)
-			s := storage.NewStorage(urls)
+			s := storage.NewStorage(urls, fileName)
 			handlers := NewHandlers(s, testURL)
 
 			w := httptest.NewRecorder()
@@ -109,7 +110,7 @@ func TestNewShortenHandler(t *testing.T) {
 			request := httptest.NewRequest(tt.want.method, "/api/shorten", payloadBuf)
 
 			urls := make(map[string]string, 10)
-			s := storage.NewStorage(urls)
+			s := storage.NewStorage(urls, fileName)
 			handlers := NewHandlers(s, testURL)
 
 			w := httptest.NewRecorder()
