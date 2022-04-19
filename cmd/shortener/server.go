@@ -16,15 +16,15 @@ import (
 const serverAddressDefault string = "localhost:8080"
 const baseURLDefault string = "http://localhost:8080" 
 
-var (fileStorage, serverAddress, baseUrl *string)
+var (fileStorage, serverAddress, baseURL *string)
 
 func init() {
-	baseUrl = flag.String("b", "", "BASE_URL")
+	baseURL = flag.String("b", "", "BASE_URL")
 
 	if bu, flgBu := os.LookupEnv("BASE_URL"); flgBu {
-		*baseUrl = bu
-	} else if *baseUrl == "" {
-		*baseUrl = baseURLDefault
+		*baseURL = bu
+	} else if *baseURL == "" {
+		*baseURL = baseURLDefault
 	}
 
 	serverAddress = flag.String("a", "", "SERVER_ADDRESS")
@@ -47,7 +47,7 @@ func StartServer() {
 
 	flag.Parse()
 
-	fmt.Println(*baseUrl)
+	fmt.Println(*baseURL)
 
 	consumer, err := file.NewConsumer(*fileStorage)
 	if err == nil {
@@ -65,7 +65,7 @@ func StartServer() {
 
 	s := storage.NewStorage(urls, *fileStorage)
 
-	h := handlers.NewHandlers(s, *baseUrl)
+	h := handlers.NewHandlers(s, *baseURL)
 
 	r := chi.NewRouter()
 	r.Post("/", h.ShortenHandler)
