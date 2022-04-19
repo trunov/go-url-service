@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -27,9 +26,9 @@ func StartServer() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(cfg.FileStorage == "")
+	filePath := cfg.FileStorage
 
-	consumer, err := file.NewConsumer(cfg.FileStorage)
+	consumer, err := file.NewConsumer(filePath)
 	if err == nil {
 		links, err := consumer.ReadLink()
 		if err != nil {
@@ -43,7 +42,7 @@ func StartServer() {
 		defer consumer.Close()
 	}
 
-	s := storage.NewStorage(urls, cfg.FileStorage)
+	s := storage.NewStorage(urls, filePath)
 
 	h := handlers.NewHandlers(s, cfg.BaseURL)
 
