@@ -1,34 +1,55 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
-	"github.com/caarlos0/env/v6"
 	"github.com/go-chi/chi/v5"
 	"github.com/trunov/go-url-service/internal/app/file"
 	"github.com/trunov/go-url-service/internal/app/handlers"
 	"github.com/trunov/go-url-service/internal/app/storage"
 )
 
-type Config struct {
-	ServerAddress string `env:"SERVER_ADDRESS" envDefault:"localhost:8080"`
-	BaseURL       string `env:"BASE_URL" envDefault:"http://localhost:8080"`
-	FileStorage   string `env:"FILE_STORAGE_PATH"`
+const serverAddressDefault string = "localhost:8080"
+const baseURLDefault string = "http://localhost:8080" 
+
+var (fileStorage, serverAddress, baseUrl *string)
+
+func init() {
+	baseUrl = flag.String("b", "", "BASE_URL")
+
+	if bu, flgBu := os.LookupEnv("BASE_URL"); flgBu {
+		*baseUrl = bu
+	} else if *baseUrl == "" {
+		*baseUrl = baseURLDefault
+	}
+
+	serverAddress = flag.String("a", "", "SERVER_ADDRESS")
+
+	if sa, flgSa := os.LookupEnv("SERVER_ADDRESS"); flgSa {
+		*serverAddress = sa
+	} else if *serverAddress == "" {
+		*serverAddress = serverAddressDefault
+	}
+
+	fileStorage = flag.String("f", "", "FILE_STORAGE_PATH - путь до файла с сокращёнными URL")
+
+	if u, flgFs := os.LookupEnv("FILE_STORAGE_PATH"); flgFs {
+		*fileStorage = u
+	}
 }
 
 func StartServer() {
 	urls := make(map[string]string, 10)
 
-	var cfg Config
-	err := env.Parse(&cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
+	flag.Parse()
 
-	filePath := cfg.FileStorage
+	fmt.Println(*baseUrl)
 
-	consumer, err := file.NewConsumer(filePath)
+	consumer, err := file.NewConsumer(*fileStorage)
 	if err == nil {
 		links, err := consumer.ReadLink()
 		if err != nil {
@@ -42,14 +63,16 @@ func StartServer() {
 		defer consumer.Close()
 	}
 
-	s := storage.NewStorage(urls, filePath)
+	s := storage.NewStorage(urls, *fileStorage)
 
-	h := handlers.NewHandlers(s, cfg.BaseURL)
+	h := handlers.NewHandlers(s, *baseUrl)
 
 	r := chi.NewRouter()
 	r.Post("/", h.ShortenHandler)
 	r.Post("/api/shorten", h.NewShortenHandler)
 	r.Get("/{id}", h.RedirectHandler)
 
-	log.Fatal(http.ListenAndServe(cfg.ServerAddress, r))
+	fmt.Println("server address " + *serverAddress)
+
+	log.Fatal(http.ListenAndServe(*serverAddress, r))
 }
