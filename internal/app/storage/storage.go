@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"log"
+	"sync"
 
 	"github.com/trunov/go-url-service/internal/app/file"
 )
@@ -11,6 +12,7 @@ type urls map[string]string
 
 type Storage struct {
 	urls     urls
+	mtx sync.RWMutex 
 	fileName string
 }
 
@@ -36,8 +38,15 @@ func (s *Storage) Get(id string) (string, error) {
 	return value, nil
 }
 
-func (s *Storage) Add(id, url string) {
+func (s *Storage) add(id, url string) {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
 	s.urls[id] = url
+}
+
+
+func (s *Storage) Add(id, url string) {
+	s.add(id, url); // в момент чтения тоже самое
 
 	fmt.Printf("url - %s with such id - %s was added \n", id, url)
 	// хранить mutex
