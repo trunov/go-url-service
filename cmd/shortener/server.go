@@ -49,9 +49,10 @@ func StartServer() {
 
 	flag.Parse()
 
-	fmt.Printf(`base url = %s
-	server address = %s
-	file path = %s`, baseURL, serverAddress, fileStorage)
+	fmt.Printf(`base url = "%s"
+	server address = "%s"
+	file path = "%s"
+	`, baseURL, serverAddress, fileStorage)
 
 	consumer, err := file.NewConsumer(fileStorage)
 	if err == nil {
