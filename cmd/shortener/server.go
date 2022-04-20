@@ -44,11 +44,12 @@ func init() {
 func StartServer() {
 	fmt.Println("start server")
 	defer fmt.Println("server stopped")
-	// defer func() {
-	// 	if e := recover(); e != nil {
-	// 		fmt.Println("panic recover", e)
-	// 	}
-	// }()
+	
+	defer func() {
+		if e := recover(); e != nil {
+			fmt.Println("panic recover", e)
+		}
+	}()
 
 	urls := make(map[string]string, 10)
 
@@ -84,5 +85,9 @@ func StartServer() {
 
 	fmt.Println("server address " + serverAddress)
 
-	log.Fatal(http.ListenAndServe(serverAddress, r))
+	errServer := http.ListenAndServe(serverAddress, r)
+
+	fmt.Println(errServer)
 }
+
+// создать явный http сервер дефер сервер шат даун
