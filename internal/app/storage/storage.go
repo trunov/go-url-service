@@ -39,6 +39,9 @@ func (s *Storage) Get(id string) (string, error) {
 func (s *Storage) Add(id, url string) {
 	s.urls[id] = url
 
+	fmt.Printf("url - %s with such id - %s was added \n", id, url)
+	// хранить mutex
+
 	if s.fileName != "" {
 		producer, err := file.NewProducer(s.fileName)
 		if err != nil {

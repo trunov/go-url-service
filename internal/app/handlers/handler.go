@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -79,6 +80,9 @@ func (h *Handlers) RedirectHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	url, _ := h.storage.Get(id)
+
+	fmt.Printf("url - %s was given \n", url)
+
 	if url == "" {
 		http.Error(rw, "provided id was not found", http.StatusNotFound)
 		return
