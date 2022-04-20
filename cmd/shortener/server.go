@@ -44,6 +44,11 @@ func init() {
 func StartServer() {
 	fmt.Println("start server")
 	defer fmt.Println("server stopped")
+	// defer func() {
+	// 	if e := recover(); e != nil {
+	// 		fmt.Println("panic recover", e)
+	// 	}
+	// }()
 
 	urls := make(map[string]string, 10)
 
