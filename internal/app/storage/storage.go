@@ -44,6 +44,7 @@ func (s *Storage) Add(id, url string) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer producer.Close()
 
 		link := &file.Link{
 			ID:  id,
@@ -54,8 +55,6 @@ func (s *Storage) Add(id, url string) {
 		if writeErr != nil {
 			log.Fatal(err)
 		}
-
-		defer producer.Close()
 	}
 }
 
