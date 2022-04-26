@@ -10,16 +10,19 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/trunov/go-url-service/internal/app/file"
 	"github.com/trunov/go-url-service/internal/app/handlers"
+	"github.com/trunov/go-url-service/internal/app/middlewares"
 	"github.com/trunov/go-url-service/internal/app/storage"
 )
 
 // make config struct
 
 const serverAddressDefault string = "localhost:8080"
-const baseURLDefault string = "http://localhost:8080" 
+const baseURLDefault string = "http://localhost:8080"
 
 // make config internal
-var (fileStorage, serverAddress, baseURL string)
+var (
+	fileStorage, serverAddress, baseURL string
+)
 
 func init() {
 	flag.StringVar(&baseURL, "b", baseURLDefault, "BASE_URL")
@@ -44,7 +47,7 @@ func init() {
 func StartServer() {
 	fmt.Println("start server")
 	defer fmt.Println("server stopped")
-	
+
 	defer func() {
 		if e := recover(); e != nil {
 			fmt.Println("panic recover", e)
@@ -79,6 +82,9 @@ func StartServer() {
 	h := handlers.NewHandlers(s, baseURL)
 
 	r := chi.NewRouter()
+
+	r.Use(middlewares.GzipHandle)
+
 	r.Post("/", h.ShortenHandler)
 	r.Post("/api/shorten", h.NewShortenHandler)
 	r.Get("/{id}", h.RedirectHandler)

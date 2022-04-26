@@ -12,7 +12,7 @@ type urls map[string]string
 
 type Storage struct {
 	urls     urls
-	mtx sync.RWMutex 
+	mtx      sync.RWMutex
 	fileName string
 }
 
@@ -44,9 +44,8 @@ func (s *Storage) add(id, url string) {
 	s.urls[id] = url
 }
 
-
 func (s *Storage) Add(id, url string) {
-	s.add(id, url); // в момент чтения тоже самое
+	s.add(id, url) // в момент чтения тоже самое
 
 	fmt.Printf("url - %s with such id - %s was added \n", id, url)
 	// хранить mutex
