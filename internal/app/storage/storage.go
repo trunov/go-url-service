@@ -47,7 +47,7 @@ func (s *Storage) add(id, url string) {
 func (s *Storage) Add(id, url string) {
 	s.add(id, url) // в момент чтения тоже самое
 
-	fmt.Printf("url - %s with such id - %s was added \n", id, url)
+	fmt.Printf("url - %s with such id - %s was added \n", url, id)
 	// хранить mutex
 
 	if s.fileName != "" {

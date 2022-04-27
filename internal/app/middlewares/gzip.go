@@ -35,6 +35,5 @@ func GzipHandle(next http.Handler) http.Handler {
 
 		fmt.Println(gzipWriter{ResponseWriter: w, Writer: gz})
 		next.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: gz}, r)
-
 	})
 }
