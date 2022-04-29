@@ -80,6 +80,7 @@ func StartServer() {
 	r := chi.NewRouter()
 
 	r.Use(middlewares.GzipHandle)
+	r.Use(middlewares.DecompressHandle)
 
 	r.Post("/", h.ShortenHandler)
 	r.Post("/api/shorten", h.NewShortenHandler)
