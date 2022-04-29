@@ -19,8 +19,6 @@ type Body struct {
 	URL string `json:"url"`
 }
 
-const localhost string = "http://localhost:8080/"
-
 type Handlers struct {
 	storage storage.Storager
 	baseURL string
@@ -64,9 +62,9 @@ func (h *Handlers) ShortenHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(201)
 
 	if ok {
-		tinyURL = localhost + key
+		tinyURL = h.baseURL + "/" + key
 	} else {
-		tinyURL = localhost + newlyGeneratedShortLink
+		tinyURL = h.baseURL + "/" + newlyGeneratedShortLink
 	}
 
 	w.Write([]byte(tinyURL))
@@ -90,7 +88,7 @@ func (h *Handlers) RedirectHandler(rw http.ResponseWriter, r *http.Request) {
 
 	rw.Header().Set("Location", url)
 	rw.WriteHeader(http.StatusTemporaryRedirect)
-	rw.Write(nil)
+	rw.Write([]byte{})
 }
 
 func (h *Handlers) NewShortenHandler(rw http.ResponseWriter, r *http.Request) {

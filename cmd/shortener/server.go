@@ -48,12 +48,6 @@ func StartServer() {
 	fmt.Println("start server")
 	defer fmt.Println("server stopped")
 
-	defer func() {
-		if e := recover(); e != nil {
-			fmt.Println("panic recover", e)
-		}
-	}()
-
 	urls := make(map[string]string, 10)
 
 	flag.Parse()
@@ -63,18 +57,20 @@ func StartServer() {
 	file path = "%s"
 	`, baseURL, serverAddress, fileStorage)
 
-	consumer, err := file.NewConsumer(fileStorage)
-	if err == nil {
-		links, err := consumer.ReadLink()
-		if err != nil {
-			log.Fatal(err)
-		}
+	if fileStorage != "" {
+		consumer, err := file.NewConsumer(fileStorage)
+		if err == nil {
+			links, err := consumer.ReadLink()
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		for _, link := range links {
-			urls[link.ID] = link.URL
-		}
+			for _, link := range links {
+				urls[link.ID] = link.URL
+			}
 
-		defer consumer.Close()
+			defer consumer.Close()
+		}
 	}
 
 	s := storage.NewStorage(urls, fileStorage)
@@ -93,7 +89,9 @@ func StartServer() {
 
 	errServer := http.ListenAndServe(serverAddress, r)
 
-	fmt.Println(errServer)
+	if errServer != nil {
+		log.Println(errServer)
+	}
 }
 
 // создать явный http сервер дефер сервер шат даун
