@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,8 +14,6 @@ import (
 
 func StartServer(cfg Config) {
 	urls := make(map[string]string, 10)
-
-	flag.Parse()
 
 	if cfg.fileStorage != "" {
 		consumer, err := file.NewConsumer(cfg.fileStorage)

@@ -35,6 +35,8 @@ func flagSetup() Config {
 		cfg.fileStorage = u
 	}
 
+	flag.Parse()
+
 	return cfg
 }
 
