@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"compress/gzip"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -33,7 +32,6 @@ func GzipHandle(next http.Handler) http.Handler {
 
 		w.Header().Set("Content-Encoding", "gzip")
 
-		fmt.Println(gzipWriter{ResponseWriter: w, Writer: gz})
 		next.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: gz}, r)
 	})
 }
@@ -42,7 +40,7 @@ func DecompressHandle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get(`Content-Encoding`) != `gzip` {
 			next.ServeHTTP(w, r)
-			return 
+			return
 		}
 
 		gz, err := gzip.NewReader(r.Body)

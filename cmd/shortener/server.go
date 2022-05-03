@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/trunov/go-url-service/internal/app/file"
@@ -14,51 +13,13 @@ import (
 	"github.com/trunov/go-url-service/internal/app/storage"
 )
 
-// make config struct
-
-const serverAddressDefault string = "localhost:8080"
-const baseURLDefault string = "http://localhost:8080"
-
-// make config internal
-var (
-	fileStorage, serverAddress, baseURL string
-)
-
-func init() {
-	flag.StringVar(&baseURL, "b", baseURLDefault, "BASE_URL")
-
-	if bu, flgBu := os.LookupEnv("BASE_URL"); flgBu {
-		baseURL = bu
-	}
-
-	flag.StringVar(&serverAddress, "a", serverAddressDefault, "SERVER_ADDRESS")
-
-	if sa, flgSa := os.LookupEnv("SERVER_ADDRESS"); flgSa {
-		serverAddress = sa
-	}
-
-	flag.StringVar(&fileStorage, "f", "", "FILE_STORAGE_PATH - путь до файла с сокращёнными URL")
-
-	if u, flgFs := os.LookupEnv("FILE_STORAGE_PATH"); flgFs {
-		fileStorage = u
-	}
-}
-
-func StartServer() {
-	fmt.Println("start server")
-	defer fmt.Println("server stopped")
-
+func StartServer(cfg Config) {
 	urls := make(map[string]string, 10)
 
 	flag.Parse()
 
-	fmt.Printf(`base url = "%s"
-	server address = "%s"
-	file path = "%s"
-	`, baseURL, serverAddress, fileStorage)
-
-	if fileStorage != "" {
-		consumer, err := file.NewConsumer(fileStorage)
+	if cfg.fileStorage != "" {
+		consumer, err := file.NewConsumer(cfg.fileStorage)
 		if err == nil {
 			links, err := consumer.ReadLink()
 			if err != nil {
@@ -73,9 +34,9 @@ func StartServer() {
 		}
 	}
 
-	s := storage.NewStorage(urls, fileStorage)
+	s := storage.NewStorage(urls, cfg.fileStorage)
 
-	h := handlers.NewHandlers(s, baseURL)
+	h := handlers.NewHandlers(s, cfg.baseURL)
 
 	r := chi.NewRouter()
 
@@ -86,13 +47,11 @@ func StartServer() {
 	r.Post("/api/shorten", h.NewShortenHandler)
 	r.Get("/{id}", h.RedirectHandler)
 
-	fmt.Println("server address " + serverAddress)
+	fmt.Println("server address " + cfg.serverAddress)
 
-	errServer := http.ListenAndServe(serverAddress, r)
+	errServer := http.ListenAndServe(cfg.serverAddress, r)
 
 	if errServer != nil {
 		log.Println(errServer)
 	}
 }
-
-// создать явный http сервер дефер сервер шат даун

@@ -30,7 +30,10 @@ type Storager interface {
 }
 
 func (s *Storage) Get(id string) (string, error) {
+	s.mtx.RLock()
+	defer s.mtx.RLock()
 	value, ok := s.urls[id]
+
 	if !ok {
 		return "", fmt.Errorf("value %s not found", id)
 	}
@@ -45,10 +48,7 @@ func (s *Storage) add(id, url string) {
 }
 
 func (s *Storage) Add(id, url string) {
-	s.add(id, url) // в момент чтения тоже самое
-
-	fmt.Printf("url - %s with such id - %s was added \n", url, id)
-	// хранить mutex
+	s.add(id, url)
 
 	if s.fileName != "" {
 		producer, err := file.NewProducer(s.fileName)
