@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx"
 	"github.com/trunov/go-url-service/internal/app"
 	"github.com/trunov/go-url-service/internal/app/storage"
 )
@@ -21,12 +23,14 @@ type Body struct {
 type Handlers struct {
 	storage storage.Storager
 	baseURL string
+	conn pgx.Conn
 }
 
-func NewHandlers(storage storage.Storager, baseURL string) *Handlers {
+func NewHandlers(storage storage.Storager, baseURL string, conn pgx.Conn) *Handlers {
 	return &Handlers{
 		storage: storage,
 		baseURL: baseURL,
+		conn: conn,
 	}
 }
 
@@ -116,4 +120,17 @@ func (h *Handlers) NewShortenHandler(rw http.ResponseWriter, r *http.Request) {
 	data := Response{Result: tinyURL}
 
 	json.NewEncoder(rw).Encode(data)
+}
+
+func (h *Handlers) PingDbHandler(rw http.ResponseWriter, r *http.Request) {
+	err := h.conn.Ping(context.Background())
+
+	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	rw.WriteHeader(http.StatusOK)
 }
