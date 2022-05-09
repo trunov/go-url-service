@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jackc/pgx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/trunov/go-url-service/internal/app/storage"
@@ -18,6 +19,7 @@ import (
 
 const testURL string = "http://localhost:8080/"
 const fileName string = "test.txt"
+var conn pgx.Conn
 
 func TestShortenHandler(t *testing.T) {
 	// тест который проверяет пост запрос на генерацию ключа в ответе текстом и кодом 201 в последующем проверка того что ключ есть в массиве
@@ -52,7 +54,7 @@ func TestShortenHandler(t *testing.T) {
 			// таким образом потом можно для гет запроса передать массив с данными и тестировать
 			urls := make(map[string]string, 10)
 			s := storage.NewStorage(urls, fileName)
-			handlers := NewHandlers(s, testURL)
+			handlers := NewHandlers(s, testURL, conn)
 
 			w := httptest.NewRecorder()
 			h := http.HandlerFunc(handlers.ShortenHandler)
@@ -111,7 +113,7 @@ func TestNewShortenHandler(t *testing.T) {
 
 			urls := make(map[string]string, 10)
 			s := storage.NewStorage(urls, fileName)
-			handlers := NewHandlers(s, testURL)
+			handlers := NewHandlers(s, testURL, conn)
 
 			w := httptest.NewRecorder()
 			h := http.HandlerFunc(handlers.NewShortenHandler)
