@@ -19,6 +19,7 @@ import (
 
 const testURL string = "http://localhost:8080/"
 const fileName string = "test.txt"
+
 var conn pgx.Conn
 
 func TestShortenHandler(t *testing.T) {
@@ -54,7 +55,7 @@ func TestShortenHandler(t *testing.T) {
 			// таким образом потом можно для гет запроса передать массив с данными и тестировать
 			urls := make(map[string]string, 10)
 			s := storage.NewStorage(urls, fileName)
-			handlers := NewHandlers(s, testURL, conn)
+			handlers := NewHandlers(s, testURL, &conn)
 
 			w := httptest.NewRecorder()
 			h := http.HandlerFunc(handlers.ShortenHandler)
@@ -113,7 +114,7 @@ func TestNewShortenHandler(t *testing.T) {
 
 			urls := make(map[string]string, 10)
 			s := storage.NewStorage(urls, fileName)
-			handlers := NewHandlers(s, testURL, conn)
+			handlers := NewHandlers(s, testURL, &conn)
 
 			w := httptest.NewRecorder()
 			h := http.HandlerFunc(handlers.NewShortenHandler)

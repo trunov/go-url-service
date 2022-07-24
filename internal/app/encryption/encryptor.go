@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	b64 "encoding/base64"
 	"fmt"
 )
 
@@ -13,7 +14,7 @@ type Encryptor struct {
 
 func NewEncryptor(key []byte) *Encryptor {
 	return &Encryptor{
-		key:   key,
+		key: key,
 	}
 }
 
@@ -26,7 +27,7 @@ func GenerateRandom(size int) ([]byte, error) {
 	b := make([]byte, size)
 	_, err := rand.Read(b)
 	if err != nil {
-			return nil, err
+		return nil, err
 	}
 
 	return b, nil
@@ -35,14 +36,13 @@ func GenerateRandom(size int) ([]byte, error) {
 func (e *Encryptor) Encode(userID []byte) (string, error) {
 	c, err := aes.NewCipher(e.key)
 	if err != nil {
-		return "", err
+		return "Cipher", err
 	}
 
 	gcm, err := cipher.NewGCM(c)
 	if err != nil {
-		return "", err
+		return "GCM", err
 	}
-
 
 	nonce, err := GenerateRandom(gcm.NonceSize())
 	if err != nil {
@@ -50,13 +50,14 @@ func (e *Encryptor) Encode(userID []byte) (string, error) {
 		return "", err
 	}
 
-	out := gcm.Seal(nil, nonce, userID, nil)
-	out = append(out, nonce...)
-
-	return string(out), nil
+	out := gcm.Seal(nonce, nonce, userID, nil)
+	
+	return b64.StdEncoding.EncodeToString([]byte(out)), nil
 }
 
-func (e *Encryptor) Decode(userID string) ([]byte, error) {
+func (e *Encryptor) Decode(userID string) (string, error) {
+	b64Decode, _ := b64.StdEncoding.DecodeString(userID)
+
 	aesblock, err := aes.NewCipher(e.key)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
@@ -65,18 +66,17 @@ func (e *Encryptor) Decode(userID string) ([]byte, error) {
 	aesgcm, err := cipher.NewGCM(aesblock)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
-		return nil, err
+		return "", err
 	}
 
-	b := []byte(userID)
-	nonce := b[len(b) - aesgcm.NonceSize():] 
-	userIDByte := b[:len(b) - aesgcm.NonceSize()]  
+	nonceSize := aesgcm.NonceSize()
+	nonce, b64UserID := b64Decode[:nonceSize], b64Decode[nonceSize:]
 
-	decrypted, err := aesgcm.Open(nil, nonce, userIDByte, nil)
+	decrypted, err := aesgcm.Open(nil, nonce, b64UserID, nil)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
-		return nil, err
+		return "", err
 	}
 
-	return decrypted, nil
+	return string(decrypted), nil
 }

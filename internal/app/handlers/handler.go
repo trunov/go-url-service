@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -23,14 +24,14 @@ type Body struct {
 type Handlers struct {
 	storage storage.Storager
 	baseURL string
-	conn pgx.Conn
+	conn    *pgx.Conn
 }
 
-func NewHandlers(storage storage.Storager, baseURL string, conn pgx.Conn) *Handlers {
+func NewHandlers(storage storage.Storager, baseURL string, conn *pgx.Conn) *Handlers {
 	return &Handlers{
 		storage: storage,
 		baseURL: baseURL,
-		conn: conn,
+		conn:    conn,
 	}
 }
 
@@ -74,6 +75,9 @@ func (h *Handlers) ShortenHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handlers) RedirectHandler(rw http.ResponseWriter, r *http.Request) {
+	user := r.Context().Value("user_id")
+	fmt.Println("context", user)
+
 	id := chi.URLParam(r, "id")
 	if id == "" {
 		http.Error(rw, "id param is missing", http.StatusBadRequest)
@@ -123,14 +127,19 @@ func (h *Handlers) NewShortenHandler(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handlers) PingDbHandler(rw http.ResponseWriter, r *http.Request) {
-	err := h.conn.Ping(context.Background())
+	if h.conn != nil {
+		err := h.conn.Ping(context.Background())
 
-	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
-	if err != nil {
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		rw.WriteHeader(http.StatusOK)
+	} else {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	rw.WriteHeader(http.StatusOK)
 }

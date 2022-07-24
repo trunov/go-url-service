@@ -9,7 +9,7 @@ type Config struct {
 	fileStorage   string
 	serverAddress string
 	baseURL       string
-	databaseDSN 	string
+	databaseDSN   string
 }
 
 func flagSetup() Config {
@@ -18,8 +18,7 @@ func flagSetup() Config {
 	const serverAddressDefault string = "localhost:8080"
 	const baseURLDefault string = "http://localhost:8080"
 
-	
-	flag.StringVar(&cfg.databaseDSN, "d", "", "BASE_URL")
+	flag.StringVar(&cfg.databaseDSN, "d", "", "DATABASE_DSN")
 
 	if dsn, flgDSN := os.LookupEnv("DATABASE_DSN"); flgDSN {
 		cfg.baseURL = dsn
